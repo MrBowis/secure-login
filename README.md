@@ -17,7 +17,7 @@ secure-login/
 ### 1. Clonar el repositorio
 
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone https://github.com/MrBowis/secure-login.git
 cd secure-login
 ```
 
