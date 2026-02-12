@@ -1,0 +1,54 @@
+name: 🛡️ Análisis de Seguridad Estático con IA
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  static-security-analysis:
+    name: 🧠 Análisis Estático de Vulnerabilidades (IA)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Obtener código fuente
+        uses: actions/checkout@v4
+
+      - name: 🐍 Configurar Python (Para el Scanner IA)
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 📦 Instalar dependencias del Scanner
+        run: |
+          pip install joblib scikit-learn xgboost pandas numpy
+          # Si tienes un requirements.txt específico para el modelo, úsalo aquí
+          # pip install -r model_requirements.txt
+
+      - name: 🧠 Ejecutar Escaneo de IA
+        id: ia_scan
+        run: |
+          # Asegurarse que los archivos .pkl del modelo estén en la raíz o ajustar la ruta
+          python security_scan.py
+        continue-on-error: false # Si detecta vulnerabilidad, falla el pipeline
+
+      - name: 📊 Publicar Reporte de Seguridad (Si es PR)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            let report = "⚠️ Vulnerabilidad detectada por el Modelo de IA.";
+            try { 
+              if (fs.existsSync('security_report.txt')) {
+                report = fs.readFileSync('security_report.txt', 'utf8');
+              }
+            } catch(e) { console.log(e); }
+            
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "### 🛑 Bloqueo de Seguridad\n\n" + report
+            });
