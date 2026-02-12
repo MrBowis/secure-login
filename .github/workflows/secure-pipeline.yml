@@ -22,7 +22,7 @@ jobs:
 
       - name: 📦 Instalar dependencias del Scanner
         run: |
-          pip install joblib scikit-learn xgboost pandas numpy
+          pip install joblib scikit-learn xgboost pandas numpy dill
           # Si tienes un requirements.txt específico para el modelo, úsalo aquí
           # pip install -r model_requirements.txt
 
